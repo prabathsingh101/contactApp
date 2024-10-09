@@ -5,6 +5,10 @@ Dependencies List
 2. NGX Toaster 
 3. Bootsrap Latest
 
+Note: First Run npm install command
+      its install all the dependencies node_modules files successfully then
+      ng serve --o
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.7.
 
 ## Development server
