@@ -1,9 +1,9 @@
 # ContactApp
 
-1. Dependencies
-   Angular material
-   NGX Toaster
-   Bootsrap Latest
+Dependencies List 
+1. Angular material 
+2. NGX Toaster 
+3. Bootsrap Latest
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.7.
 
