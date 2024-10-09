@@ -1,0 +1,57 @@
+<form [formGroup]="modalPopupForm" (ngSubmit)="onSubmit()">
+  <button mat-icon-button style="float: right; margin: 5px;" matDialogClose>
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-dialog-content>
+    <header>
+      <h5>{{inputdata.title}}</h5>
+    </header>
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="First name" #firstname formControlName="firstname">
+      <mat-hint align="end">
+        {{firstname.value.length}} / 15
+      </mat-hint>
+      <mat-error *ngIf="getfirstName.errors?.required">
+        First name is required.
+      </mat-error>
+
+      <mat-error *ngIf="getfirstName.errors?.maxlength">
+        A maximum length upto 15 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Last name" #lastname formControlName="lastname" name="lastname">
+      <mat-hint align="end">
+        {{lastname.value.length}} / 15
+      </mat-hint>
+      <mat-error *ngIf="getlastName.errors?.required">
+        Last name is required.
+      </mat-error>
+
+      <mat-error *ngIf="getlastName.errors?.maxlength">
+        A maximum length upto 15 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Email" #emails formControlName="email" name="email">
+      <mat-hint align="end">
+        {{emails.value.length}} / 100
+      </mat-hint>
+      <mat-error *ngIf="getemail.errors?.required">
+        Email is required.
+      </mat-error>
+      <mat-error *ngIf="getemail.errors?.maxlength">
+        A maximum length upto 100 characters.
+      </mat-error>
+      <mat-error
+        *ngIf="modalPopupForm.controls['email'].hasError('pattern') && modalPopupForm.controls['email'].touched">
+        Email is not valid !</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="accent" matDialogClose>Cancel</button>
+    <button mat-raised-button color="primary">Save</button>
+  </mat-dialog-actions>
+</form>
