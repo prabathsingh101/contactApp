@@ -46,24 +46,10 @@ export class AppComponent implements OnInit {
     this.getAll();
   }
 
-  // getAll() {
-  //   this.loading = true;
-  //   this.svc.GetAllContact(this.contacts).subscribe((res: any) => {
-  //     if (res.length > 0) {
-  //       this.contacts = res;
-  //       this.dataSource = new MatTableDataSource(this.contacts);
-  //       this.dataSource.paginator = this.paginator;
-  //       this.dataSource.sort = this.sort;
-  //       this.loading = false;
-  //     } else {
-  //       this.contacts = res;
-  //       this.dataSource = new MatTableDataSource(this.contacts);
-  //       this.dataSource.paginator = this.paginator;
-  //       this.dataSource.sort = this.sort;
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
+  filterchange(data: Event) {
+    const value = (data.target as HTMLInputElement).value;
+    this.dataSource.filter = value;
+  }
 
   getAll() {
     this.loading = true;
@@ -90,9 +76,13 @@ export class AppComponent implements OnInit {
           this.dataSource = new MatTableDataSource<Contacts>(this.contacts);
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
+          this.toast.info('Record not found.', 'Data empty.', {
+            timeOut: 3000,
+          });
         }
       });
   }
+
   deletePromptPopup(id: number) {
     this.Promptsvc.openPromptDialog(id).subscribe((res: any) => {
       if (res === true) {

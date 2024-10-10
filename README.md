@@ -1,9 +1,14 @@
 # ContactApp
 
 Dependencies List 
-1. Angular material 
-2. NGX Toaster 
+1. Angular material grid showing data
+2. NGX Toaster showing message
 3. Bootsrap Latest
+4. Angular version 18
+5. Error handling
+6. Reactive forms
+7. Paging and sorting
+8. Data filter in grid
 
 Note: First Run npm install command
       its install all the dependencies node_modules files successfully then
