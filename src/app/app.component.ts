@@ -13,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PromptService } from './services/prompt.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
+import { catchError, finalize, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,7 @@ export class AppComponent implements OnInit {
   svc = inject(ContactsService);
   Promptsvc = inject(PromptService);
   dialog = inject(MatDialog);
-  toast= inject(ToastrService);
+  toast = inject(ToastrService);
   title = 'contactApp';
   displayedColumns: string[] = [
     'id',
@@ -45,31 +46,62 @@ export class AppComponent implements OnInit {
     this.getAll();
   }
 
+  // getAll() {
+  //   this.loading = true;
+  //   this.svc.GetAllContact(this.contacts).subscribe((res: any) => {
+  //     if (res.length > 0) {
+  //       this.contacts = res;
+  //       this.dataSource = new MatTableDataSource(this.contacts);
+  //       this.dataSource.paginator = this.paginator;
+  //       this.dataSource.sort = this.sort;
+  //       this.loading = false;
+  //     } else {
+  //       this.contacts = res;
+  //       this.dataSource = new MatTableDataSource(this.contacts);
+  //       this.dataSource.paginator = this.paginator;
+  //       this.dataSource.sort = this.sort;
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
+
   getAll() {
     this.loading = true;
-    this.svc.GetAllContact(this.contacts).subscribe((res: any) => {
-      if (res.length > 0) {
+    this.svc
+      .GetAllContact(this.contacts)
+      .pipe(
+        catchError((err) => {
+          console.log('Error loading users', err);
+          this.toast.error(err.message, err.name, {
+            timeOut: 3000,
+          });
+          return throwError(err);
+        }),
+        finalize(() => (this.loading = false))
+      )
+      .subscribe((res: any) => {
         this.contacts = res;
-        this.dataSource = new MatTableDataSource(this.contacts);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.loading = false;
-      } else {
-        this.contacts = res;
-        this.dataSource = new MatTableDataSource(this.contacts);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.loading = false;
-      }
-    });
+        console.log('res', this.contacts);
+        if (this.contacts.length > 0) {
+          this.dataSource = new MatTableDataSource<Contacts>(this.contacts);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        } else {
+          this.dataSource = new MatTableDataSource<Contacts>(this.contacts);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        }
+      });
   }
   deletePromptPopup(id: number) {
     this.Promptsvc.openPromptDialog(id).subscribe((res: any) => {
       if (res === true) {
-        this.svc.DELETE(id).subscribe((res:any)=>{
-          this.toast.info('Deleted successfully.', 'Deleted.', {timeOut: 3000});
+        this.svc.DELETE(id).subscribe((res: any) => {
+          this.toast.info('Deleted successfully.', 'Deleted.', {
+            timeOut: 3000,
+          });
           this.getAll();
-        })
+        });
       }
     });
   }
@@ -93,7 +125,7 @@ export class AppComponent implements OnInit {
       },
     });
   }
-  AddContacts(){
-    this.openpoup(0,"Add New Contact");
+  AddContacts() {
+    this.openpoup(0, 'Add New Contact');
   }
 }

@@ -12,6 +12,8 @@ import { MaterialModule } from '../services/material/material.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { MatTableDataSource } from '@angular/material/table';
+import { catchError, throwError, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-contact-modal-popup',
@@ -22,6 +24,8 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ContactModalPopupComponent implements OnInit {
   data: any = inject(MAT_DIALOG_DATA);
+
+  loading = false;
 
   fb: any = inject(FormBuilder);
 
@@ -88,7 +92,9 @@ export class ContactModalPopupComponent implements OnInit {
       });
     });
   }
+
   onSubmit() {
+    this.loading = true;
     if (this.modalPopupForm.valid) {
       this.contacts = {
         firstname: this.modalPopupForm.value.firstname,
@@ -97,21 +103,43 @@ export class ContactModalPopupComponent implements OnInit {
         id: this.inputdata.id ? this.inputdata.id : 0,
       };
       if (this.inputdata.id > 0) {
-        //alert('edit');
-        this.svc.PUT(this.inputdata.id, this.contacts).subscribe((res: any) => {
-          this.closepopup();
-          this.toast.success('Updated successfully.', 'Updated.', {
-            timeOut: 3000,
+        this.svc
+          .PUT(this.inputdata.id, this.contacts)
+          .pipe(
+            catchError((err) => {
+              console.log('Error loading users', err);
+              this.toast.error(err.message, err.name, {
+                timeOut: 3000,
+              });
+              return throwError(err);
+            }),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((res: any) => {
+            this.closepopup();
+            this.toast.success('Updated successfully.', 'Updated.', {
+              timeOut: 3000,
+            });
           });
-        });
       } else {
-        //alert('save');
-        this.svc.Post(this.contacts).subscribe((res) => {
-          this.closepopup();
-          this.toast.success('Saved successfully.', 'Saved.', {
-            timeOut: 3000,
+        this.svc
+          .Post(this.contacts)
+          .pipe(
+            catchError((err) => {
+              console.log('Error loading users', err);
+              this.toast.error(err.message, err.name, {
+                timeOut: 3000,
+              });
+              return throwError(err);
+            }),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((res: any) => {
+            this.closepopup();
+            this.toast.success('Saved successfully.', 'Saved.', {
+              timeOut: 3000,
+            });
           });
-        });
       }
     }
   }
