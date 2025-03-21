@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnInit,
+
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -9,11 +15,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Contacts } from '../models/contact.model';
 import { ContactsService } from '../services/contacts.service';
 import { MaterialModule } from '../services/material/material.module';
-import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-import { MatTableDataSource } from '@angular/material/table';
-import { catchError, throwError, finalize } from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-contact-modal-popup',
@@ -23,6 +27,8 @@ import { catchError, throwError, finalize } from 'rxjs';
   styleUrl: './contact-modal-popup.component.scss',
 })
 export class ContactModalPopupComponent implements OnInit {
+  @Input() setDataParentTochild: string = '';
+
   data: any = inject(MAT_DIALOG_DATA);
 
   loading = false;
@@ -82,9 +88,8 @@ export class ContactModalPopupComponent implements OnInit {
     return this.modalPopupForm.controls['email'];
   }
   setPopupData(id: number) {
-    this.svc.GetDeptById(id).subscribe((res: any) => {
+    this.svc.GetContactsById(id).subscribe((res: any) => {
       this.editdata = res;
-      console.log('editdata', this.editdata);
       this.modalPopupForm.setValue({
         firstname: this.editdata.firstName,
         lastname: this.editdata.lastName,
@@ -105,16 +110,7 @@ export class ContactModalPopupComponent implements OnInit {
       if (this.inputdata.id > 0) {
         this.svc
           .PUT(this.inputdata.id, this.contacts)
-          .pipe(
-            catchError((err) => {
-              console.log('Error loading users', err);
-              this.toast.error(err.message, err.name, {
-                timeOut: 3000,
-              });
-              return throwError(err);
-            }),
-            finalize(() => (this.loading = false))
-          )
+          .pipe(finalize(() => (this.loading = false)))
           .subscribe((res: any) => {
             this.closepopup();
             this.toast.success('Updated successfully.', 'Updated.', {
@@ -124,16 +120,7 @@ export class ContactModalPopupComponent implements OnInit {
       } else {
         this.svc
           .Post(this.contacts)
-          .pipe(
-            catchError((err) => {
-              console.log('Error loading users', err);
-              this.toast.error(err.message, err.name, {
-                timeOut: 3000,
-              });
-              return throwError(err);
-            }),
-            finalize(() => (this.loading = false))
-          )
+          .pipe(finalize(() => (this.loading = false)))
           .subscribe((res: any) => {
             this.closepopup();
             this.toast.success('Saved successfully.', 'Saved.', {
@@ -143,4 +130,7 @@ export class ContactModalPopupComponent implements OnInit {
       }
     }
   }
+  // setPopupdata(data: any) {
+  //   console.log('mydata', data);
+  // }
 }

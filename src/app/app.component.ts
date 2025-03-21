@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ContactsService } from './services/contacts.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from './services/material/material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PromptService } from './services/prompt.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
-import { catchError, finalize, throwError } from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -39,6 +39,7 @@ export class AppComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
   dataSource: any;
   contacts: Contacts[] = [];
 
@@ -55,19 +56,9 @@ export class AppComponent implements OnInit {
     this.loading = true;
     this.svc
       .GetAllContact(this.contacts)
-      .pipe(
-        catchError((err) => {
-          console.log('Error loading users', err);
-          this.toast.error(err.message, err.name, {
-            timeOut: 3000,
-          });
-          return throwError(err);
-        }),
-        finalize(() => (this.loading = false))
-      )
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe((res: any) => {
         this.contacts = res;
-        console.log('res', this.contacts);
         if (this.contacts.length > 0) {
           this.dataSource = new MatTableDataSource<Contacts>(this.contacts);
           this.dataSource.paginator = this.paginator;
@@ -84,18 +75,24 @@ export class AppComponent implements OnInit {
   }
 
   deletePromptPopup(id: number) {
-    this.Promptsvc.openPromptDialog(id).subscribe((res: any) => {
-      if (res === true) {
-        this.svc.DELETE(id).subscribe((res: any) => {
-          this.toast.info('Deleted successfully.', 'Deleted.', {
-            timeOut: 3000,
+    this.loading = true;
+    this.Promptsvc.openPromptDialog(id)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe((res: any) => {
+        if (res === true) {
+          this.svc.DELETE(id).subscribe((res: any) => {
+            this.toast.info('Deleted successfully.', 'Deleted.', {
+              timeOut: 3000,
+            });
+            this.getAll();
           });
-          this.getAll();
-        });
-      }
-    });
+        }
+      });
   }
   editContact(id: any) {
+    this.svc.GetContactsById(id).subscribe((res) => {
+      const contacts = res;
+    });
     this.openpoup(id, 'Edit Department');
   }
   openpoup(id: number, title: any) {

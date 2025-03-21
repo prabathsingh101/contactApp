@@ -15,7 +15,7 @@ export class ContactsService {
     return this.http.get(`${this.baseUrl}getall`);
   }
 
-  GetDeptById(id: number) {
+  GetContactsById(id: number) {
     return this.http.get(`${this.baseUrl}${id}`);
   }
   Post(contacts: Contacts) {
